@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TinifyAPI;
@@ -16,7 +17,11 @@ namespace TinyJpgPngCompress
 {
     public partial class Form : System.Windows.Forms.Form
     {
+        // Provide your api key here 
+        // tinyjpg.com
+        // tinypng.com
         string tinyKey = "";
+        
         int min = 0;
         string[] sizes = { "B", "KB", "MB", "GB", "TB" };
 
@@ -47,7 +52,7 @@ namespace TinyJpgPngCompress
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button_start_Click(object sender, EventArgs e)
+        private async void button_start_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(textBox_apiKey.Text))
             {
@@ -64,9 +69,19 @@ namespace TinyJpgPngCompress
                     {
                         try
                         {
-                            textBox_currentFile.Text = file;
+                            textBox_currentFile.Text = ".." + file.Replace(textBox_folder.Text, "");
                             textBox_currentFile.Update();
-                            CompressFile(file);
+                            double fileSize = new FileInfo(filePath).Length;
+                            Log("Compress File: .." + file.Replace(textBox_folder.Text, ""));
+                            // Log("Original Size:" + HumanReadableFileSize(filePath, fileSize));
+                            Tinify.Key = tinyKey;
+                            Task<Source> source = Tinify.FromFile(filePath);
+                            await source.ToFile(filePath);
+                            Thread.Sleep(1000);
+                            UpdateLabels();
+                            double fileSizeCompressed = new FileInfo(filePath).Length;
+                            // Log("Compressed Size:" + HumanReadableFileSize(filePath, fileSizeCompressed) + " ---> Saved: " + CompressedPercentage(fileSize, fileSizeCompressed) + "%");
+                            Log("Saved: " + CompressedPercentage(fileSize, fileSizeCompressed) + "%");
                         }
                         catch (System.Exception ex)
                         {
@@ -113,7 +128,6 @@ namespace TinyJpgPngCompress
                     string extension = Path.GetExtension(file.ToLower());
 
                     if (extension != null &&
-                        extension.Contains(".gif") ||
                         extension.Contains(".jpg") ||
                         extension.Contains(".jpeg") ||
                         extension.Contains(".png"))
@@ -141,11 +155,8 @@ namespace TinyJpgPngCompress
         /// <returns></returns>
         public double CompressedPercentage(double uncomp, double comp)
         {
-            double result = 100 * comp;
-            result = result / uncomp;
-            result = Math.Round(result, 2);
-            result = 100 - result;
-            return result;
+            double result = Math.Round(((100 * comp) / uncomp), 2);
+            return Math.Round((100 - result), 2);
         }
 
         /// <summary>
@@ -185,7 +196,7 @@ namespace TinyJpgPngCompress
                 min = Convert.ToInt32(Tinify.CompressionCount);
                 UpdateLabels();
                 double fileSizeCompressed = new FileInfo(filePath).Length;
-                Log("Compressed Size:" + HumanReadableFileSize(filePath, fileSizeCompressed) + " ---> Safed: " + CompressedPercentage(fileSize, fileSizeCompressed) + "%");
+                Log("Compressed Size:" + HumanReadableFileSize(filePath, fileSizeCompressed) + " ---> Saved: " + CompressedPercentage(fileSize, fileSizeCompressed) + "%");
             }
             catch (System.Exception ex)
             {
@@ -198,7 +209,9 @@ namespace TinyJpgPngCompress
         /// </summary>
         public void UpdateLabels()
         {
+            min = Convert.ToInt32(Tinify.CompressionCount);
             label_min.Text = min.ToString();
+            label_min.Update();
         }
 
         /// <summary>
