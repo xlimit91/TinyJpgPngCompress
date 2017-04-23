@@ -180,31 +180,6 @@ namespace TinyJpgPngCompress
         }
 
         /// <summary>
-        /// Compress image file.
-        /// </summary>
-        /// <param name="filePath"></param>
-        public async void CompressFile(string filePath)
-        {
-            try
-            {
-                double fileSize = new FileInfo(filePath).Length;
-                Log("Compress File:" + filePath);
-                Log("Original Size:" + HumanReadableFileSize(filePath, fileSize));
-                Tinify.Key = tinyKey;
-                var source = Tinify.FromFile(filePath);
-                await source.ToFile(filePath);
-                min = Convert.ToInt32(Tinify.CompressionCount);
-                UpdateLabels();
-                double fileSizeCompressed = new FileInfo(filePath).Length;
-                Log("Compressed Size:" + HumanReadableFileSize(filePath, fileSizeCompressed) + " ---> Saved: " + CompressedPercentage(fileSize, fileSizeCompressed) + "%");
-            }
-            catch (System.Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Update label in form.
         /// </summary>
         public void UpdateLabels()
