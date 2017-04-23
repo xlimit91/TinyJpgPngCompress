@@ -25,6 +25,11 @@ namespace TinyJpgPngCompress
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Open folder browser dialog. Choose directory with image files.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button_folderSearch_Click(object sender, EventArgs e)
         {
             using (var folderDialog = new FolderBrowserDialog())
@@ -37,17 +42,24 @@ namespace TinyJpgPngCompress
 
         }
 
+        /// <summary>
+        /// Start compression task.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button_start_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(textBox_apiKey.Text))
             {
                 if (!string.IsNullOrWhiteSpace(textBox_folder.Text))
                 {
+                    // Collect all image files and save in list
                     MessageBox.Show("Important: All files will be overwritten, please make a backup of your source images.");
                     tinyKey = textBox_apiKey.Text;
                     string path = textBox_folder.Text;
                     List<string> fileList = FileList(path);
 
+                    // Compress every image file in list
                     foreach (string file in fileList)
                     {
                         try
@@ -75,6 +87,11 @@ namespace TinyJpgPngCompress
             }
         }
 
+        /// <summary>
+        /// Search image files in directory and save in list.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public List<string> FileList(string path)
         {
             List<string> fileList = new List<string>();
@@ -82,6 +99,11 @@ namespace TinyJpgPngCompress
             return fileList;
         }
 
+        /// <summary>
+        /// Recursive file search.
+        /// </summary>
+        /// <param name="sDir"></param>
+        /// <param name="fileList"></param>
         public static void DirSearch(string sDir, List<string> fileList)
         {
             try
@@ -111,6 +133,12 @@ namespace TinyJpgPngCompress
             }
         }
 
+        /// <summary>
+        /// Return percentage of compression.
+        /// </summary>
+        /// <param name="uncomp"></param>
+        /// <param name="comp"></param>
+        /// <returns></returns>
         public double CompressedPercentage(double uncomp, double comp)
         {
             double result = 100 * comp;
@@ -120,6 +148,12 @@ namespace TinyJpgPngCompress
             return result;
         }
 
+        /// <summary>
+        /// Return file size.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="fileSize"></param>
+        /// <returns></returns>
         public string HumanReadableFileSize(string filePath, double fileSize)
         {
             int order = 0;
@@ -134,6 +168,10 @@ namespace TinyJpgPngCompress
             return string.Format("{0:0.##} {1}", fileSize, sizes[order]);
         }
 
+        /// <summary>
+        /// Compress image file.
+        /// </summary>
+        /// <param name="filePath"></param>
         public async void CompressFile(string filePath)
         {
             try
@@ -155,11 +193,18 @@ namespace TinyJpgPngCompress
             }
         }
 
+        /// <summary>
+        /// Update label in form.
+        /// </summary>
         public void UpdateLabels()
         {
             label_min.Text = min.ToString();
         }
 
+        /// <summary>
+        /// Add listbox.item and select latest item (for auto-scroll)
+        /// </summary>
+        /// <param name="message"></param>
         public void Log(string message)
         {
             listBox_log.Items.Add(message);
